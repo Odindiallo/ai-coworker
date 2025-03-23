@@ -1,7 +1,7 @@
 /**
- * Hugging Face API Integration
+ * Hugging Face API Integration - GitHub Pages Demo Version
  * 
- * This module handles communication with Hugging Face for image generation
+ * This module provides a mock implementation for GitHub Pages deployment
  */
 
 // Default model settings for image generation
@@ -37,7 +37,7 @@ interface ImageGenerationResult {
 }
 
 /**
- * Generate an image using the Hugging Face API and a fine-tuned model
+ * Generate an image using the Hugging Face API and a fine-tuned model - Mock implementation for GitHub Pages
  * 
  * @param prompt Text prompt to generate image from
  * @param modelId Hugging Face model ID to use (custom fine-tuned model)
@@ -50,80 +50,53 @@ export async function generateImage(
   settings: GenerationSettings = {},
   isMobile: boolean = false
 ): Promise<ImageGenerationResult> {
-  // Choose appropriate settings based on device
-  const baseSettings = isMobile ? MOBILE_SETTINGS : DEFAULT_SETTINGS;
+  // Log the parameters for the GitHub Pages demo
+  console.log('Demo Mode: Using mock implementation for GitHub Pages deployment');
+  console.log('Would have called Hugging Face API with:', {
+    modelId,
+    prompt,
+    settings,
+    isMobile
+  });
   
-  // Combine default settings with any custom settings
-  const mergedSettings = {
-    ...baseSettings,
-    ...settings
-  };
+  // Create a simple canvas with text to return as a mock image
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = settings.width || (isMobile ? MOBILE_SETTINGS.width : DEFAULT_SETTINGS.width);
+  canvas.height = settings.height || (isMobile ? MOBILE_SETTINGS.height : DEFAULT_SETTINGS.height);
   
-  // API endpoint for the model
-  const endpoint = `https://api-inference.huggingface.co/models/${modelId}`;
-  
-  try {
-    // Get API key from environment
-    const apiKey = process.env.REACT_APP_HUGGINGFACE_API_KEY;
+  if (ctx) {
+    // Fill with a gradient
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#f0f0f0');
+    gradient.addColorStop(1, '#d0d0d0');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    if (!apiKey) {
-      throw new Error('Hugging Face API key is missing');
-    }
-    
-    // Prepare request payload
-    const payload = {
-      inputs: prompt,
-      parameters: mergedSettings
-    };
-    
-    // Make API request
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-    
-    // Check for HTTP errors
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      
-      // Format error message based on response
-      const errorMessage = errorData.error 
-        ? `Hugging Face API error: ${errorData.error}` 
-        : `Hugging Face API returned status ${response.status}`;
-      
-      throw new Error(errorMessage);
-    }
-    
-    // Get image data
-    const imageBlob = await response.blob();
-    
-    // Convert the blob to a base64 string
-    const base64Image = await new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.readAsDataURL(imageBlob);
-    });
-    
-    // Extract seed from response headers if available
-    const seedHeader = response.headers.get('X-Seed');
-    const seed = seedHeader ? parseInt(seedHeader, 10) : Math.floor(Math.random() * 2147483647);
-    
-    return {
-      image: base64Image,
-      seed
-    };
-  } catch (error) {
-    console.error('Error generating image:', error);
-    throw error;
+    // Add text for the prompt
+    ctx.fillStyle = '#333';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Demo Mode: GitHub Pages', canvas.width / 2, 40);
+    ctx.fillText('Model: ' + modelId.substring(0, 30), canvas.width / 2, 80);
+    ctx.fillText('Prompt: ' + prompt.substring(0, 30) + (prompt.length > 30 ? '...' : ''), 
+                canvas.width / 2, 120);
   }
+  
+  // Convert to base64 and return
+  const base64Image = canvas.toDataURL('image/png');
+  
+  // Generate a deterministic seed from the prompt for reproducibility in demo mode
+  const seed = prompt.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  
+  return {
+    image: base64Image,
+    seed
+  };
 }
 
 /**
- * Check if a Hugging Face model is ready for inference
+ * Check if a Hugging Face model is ready for inference - Mock implementation for GitHub Pages
  * 
  * @param modelId Hugging Face model ID to check
  * @returns Promise that resolves to boolean indicating if model is ready
@@ -132,54 +105,11 @@ export async function checkModelStatus(modelId: string): Promise<{
   isReady: boolean;
   estimatedTime?: number;
 }> {
-  try {
-    // Get API key from environment
-    const apiKey = process.env.REACT_APP_HUGGINGFACE_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error('Hugging Face API key is missing');
-    }
-    
-    // API endpoint for the model
-    const endpoint = `https://api-inference.huggingface.co/models/${modelId}`;
-    
-    // Make a small test request to check status
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        inputs: "test",
-        parameters: {
-          ...MOBILE_SETTINGS,
-          num_outputs: 1
-        }
-      })
-    });
-    
-    // If we get a 200 response, the model is ready
-    if (response.ok) {
-      return { isReady: true };
-    }
-    
-    // Check if the model is still loading
-    const data = await response.json().catch(() => ({}));
-    
-    if (response.status === 503 && data.estimated_time) {
-      return {
-        isReady: false,
-        estimatedTime: data.estimated_time
-      };
-    }
-    
-    // Something else is wrong
-    return { isReady: false };
-  } catch (error) {
-    console.error('Error checking model status:', error);
-    return { isReady: false };
-  }
+  console.log('Demo Mode: Using mock implementation for GitHub Pages deployment');
+  console.log('Would have checked status for model:', modelId);
+  
+  // In GitHub Pages demo, always return that the model is ready
+  return { isReady: true };
 }
 
 export default {
