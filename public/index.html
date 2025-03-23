@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Actor Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .loading {
+      text-align: center;
+      margin: 40px 0;
+    }
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 2s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h1>AI Actor Generator</h1>
+  
+  <div class="loading">
+    <div class="loader"></div>
+    <p>Loading application...</p>
+  </div>
+  
+  <p>If you're seeing this page, the static server is working but the application hasn't been properly built yet.</p>
+  <p>Please run the build process or contact the development team for assistance.</p>
+
+  <script>
+    // This script will redirect to the actual application once built
+    window.addEventListener('DOMContentLoaded', () => {
+      // Check if we're in the development environment
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('Development environment detected');
+      }
+    });
+  </script>
+</body>
+</html> 

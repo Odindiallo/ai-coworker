@@ -1,0 +1,111 @@
+/* Haptic Feedback Animations */
+
+/* Base haptic feedback animation */
+.haptic-feedback-animation {
+  animation: haptic-pulse 200ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Success haptic animation */
+.haptic-feedback-success {
+  animation: haptic-success 400ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Error haptic animation */
+.haptic-feedback-error {
+  animation: haptic-error 700ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Warning haptic animation */
+.haptic-feedback-warning {
+  animation: haptic-warning 500ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Button press animation */
+@keyframes haptic-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.97);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Success animation */
+@keyframes haptic-success {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
+  }
+  30% {
+    transform: scale(0.97);
+    box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.2);
+  }
+  70% {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 8px rgba(72, 187, 120, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
+  }
+}
+
+/* Error animation */
+@keyframes haptic-error {
+  0% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-5px);
+  }
+  30% {
+    transform: translateX(5px);
+  }
+  45% {
+    transform: translateX(-3px);
+  }
+  60% {
+    transform: translateX(3px);
+  }
+  75% {
+    transform: translateX(-1px);
+  }
+  90% {
+    transform: translateX(1px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Warning animation */
+@keyframes haptic-warning {
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-5px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-3px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Add prefers-reduced-motion support */
+@media (prefers-reduced-motion: reduce) {
+  .haptic-feedback-animation,
+  .haptic-feedback-success,
+  .haptic-feedback-error,
+  .haptic-feedback-warning {
+    animation: none;
+  }
+}

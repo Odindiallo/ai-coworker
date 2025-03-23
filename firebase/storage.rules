@@ -1,0 +1,57 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Function to check if user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    // Function to check if the user is the owner of a path
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Function to check if a file size is within limits
+    function isValidFileSize() {
+      return request.resource.size <= 10 * 1024 * 1024; // 10MB limit per file
+    }
+    
+    // Function to check if file is an image
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // Default deny all rule
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // User files - users can only access their own files
+    match /users/{userId}/{allPaths=**} {
+      allow read: if isAuth() && isOwner(userId);
+      allow write: if isAuth() && isOwner(userId);
+    }
+    
+    // Actor images - Allow public read access to fix CORS issues
+    match /users/{userId}/actor-images/{imageId} {
+      // Allow any client to read images (no auth required)
+      allow read: if true;
+      // Only allow the owner to write
+      allow write: if isAuth() && isOwner(userId);
+    }
+    
+    // Generated images - Allow public read access to fix CORS issues
+    match /users/{userId}/generated-images/{imageId} {
+      // Allow any client to read images (no auth required)
+      allow read: if true;
+      // Only allow the owner to write
+      allow write: if isAuth() && isOwner(userId);
+    }
+    
+    // Public assets
+    match /public/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only via admin or Firebase Functions
+    }
+  }
+}

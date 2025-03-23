@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Function to check if the user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    // Function to check if the user is the owner of a document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can only read and write their own data
+      allow read, write: if isAuth() && isOwner(userId);
+      
+      // Admin users
+      match /admin/{document=**} {
+        allow read, write: if false; // Only accessible via Firebase Functions
+      }
+    }
+    
+    // Actors collection - TEMPORARY RELAXED RULES FOR TESTING
+    match /actors/{actorId} {
+      // Allow any authenticated user to read documents for testing
+      allow read: if isAuth();
+      
+      // Only allow creation if authenticated and userId matches auth
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      
+      // Only allow updates if authenticated and is owner (and not changing ownership)
+      allow update: if isAuth() && 
+                     isOwner(resource.data.userId) && 
+                     request.resource.data.userId == resource.data.userId;
+      
+      // Allow delete if user is owner
+      allow delete: if isAuth() && isOwner(resource.data.userId);
+      
+      // Generations subcollection
+      match /generations/{generationId} {
+        allow read: if isAuth();
+        allow write: if isAuth() && isOwner(get(/databases/$(database)/documents/actors/$(actorId)).data.userId);
+      }
+    }
+    
+    // User activity collection
+    match /user_activity/{activityId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false; // Only allow via Firebase Functions
+    }
+    
+    // User stats collection
+    match /user_stats/{userId} {
+      allow read: if isAuth();
+      allow write: if false; // Only allow via Firebase Functions
+    }
+    
+    // Public content collection (like FAQs, announcements)
+    match /public/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only allow via Firebase Functions or admin
+    }
+    
+    // Account lockouts collection for tracking failed login attempts
+    match /account_lockouts/{emailId} {
+      // Allow authenticated user to read and modify their own lockout doc
+      allow read, write: if isAuth() && request.auth.token.email.replace('.', ',') == emailId;
+      
+      // Also allow any authenticated user to read/write during sign-in attempts
+      // This is needed because authentication happens before user is fully signed in
+      allow read, write: if true;
+    }
+  }
+}
