@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Storage CORS Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .image-container {
+      margin: 20px 0;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .image-container img {
+      max-width: 100%;
+      display: block;
+      margin: 10px 0;
+    }
+    .image-url {
+      word-break: break-all;
+      font-family: monospace;
+      background: #f5f5f5;
+      padding: 8px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #3367d6;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Firebase Storage CORS Test</h1>
+  
+  <div class="image-container">
+    <h2>Original Image</h2>
+    <div class="image-url" id="original-url"></div>
+    <img id="original-image" alt="Original Image">
+    <div id="original-status"></div>
+  </div>
+  
+  <div class="image-container">
+    <h2>Fixed Image (with CORS parameters)</h2>
+    <div class="image-url" id="fixed-url"></div>
+    <img id="fixed-image" alt="Fixed Image">
+    <div id="fixed-status"></div>
+  </div>
+
+  <div>
+    <button id="test-url-btn">Test URL</button>
+    <button id="reset-btn">Reset</button>
+  </div>
+
+  <script>
+    // Add proper query parameters to Firebase Storage URLs to avoid CORS issues
+    function addCorsParameters(url) {
+      if (!url || !url.includes('firebasestorage.googleapis.com')) {
+        return url;
+      }
+
+      // URLs must include the alt=media parameter to be accessible
+      let corsUrl = url;
+      if (!corsUrl.includes('alt=media')) {
+        corsUrl = corsUrl.includes('?') 
+          ? `${corsUrl}&alt=media` 
+          : `${corsUrl}?alt=media`;
+      }
+      
+      // Add a download token if not present
+      if (!corsUrl.includes('token=')) {
+        corsUrl = `${corsUrl}&token=cors-fix`;
+      }
+      
+      // Add a cache-busting parameter
+      corsUrl = `${corsUrl}&_cb=${Date.now()}`;
+      
+      return corsUrl;
+    }
+
+    // Firebase Storage URL to test (from your error message)
+    const testUrl = "https://firebasestorage.googleapis.com/v0/b/ai-based-actors-backup.firebasestorage.app/o?name=users/mPDVvxZJ4kfYgGFaEzM7KfJTQVd2/actor-images/1742687050638_will4.jpg";
+    
+    // Set the original URL
+    document.getElementById('original-url').textContent = testUrl;
+    
+    // Create the fixed URL with CORS parameters
+    const fixedUrl = addCorsParameters(testUrl);
+    document.getElementById('fixed-url').textContent = fixedUrl;
+
+    // Function to test an image URL
+    function testImage(imageUrl, imgElement, statusElement) {
+      // Reset status
+      statusElement.textContent = "Loading...";
+      statusElement.className = "";
+      
+      // Create a new Image object
+      const img = new Image();
+      
+      // Set up event handlers
+      img.onload = function() {
+        statusElement.textContent = "✅ Success! Image loaded correctly.";
+        statusElement.className = "success";
+      };
+      
+      img.onerror = function() {
+        statusElement.textContent = "❌ Error! Failed to load image (CORS error).";
+        statusElement.className = "error";
+      };
+      
+      // Set crossOrigin attribute
+      img.crossOrigin = "anonymous";
+      
+      // Set the source (this triggers the loading)
+      img.src = imageUrl;
+      
+      // Update the img element
+      imgElement.src = imageUrl;
+    }
+
+    // Set up event listeners
+    document.getElementById('test-url-btn').addEventListener('click', function() {
+      // Test both URLs
+      testImage(
+        testUrl,
+        document.getElementById('original-image'),
+        document.getElementById('original-status')
+      );
+      
+      testImage(
+        fixedUrl,
+        document.getElementById('fixed-image'),
+        document.getElementById('fixed-status')
+      );
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', function() {
+      // Reset everything
+      document.getElementById('original-image').src = '';
+      document.getElementById('fixed-image').src = '';
+      document.getElementById('original-status').textContent = '';
+      document.getElementById('fixed-status').textContent = '';
+    });
+  </script>
+</body>
+</html> 
