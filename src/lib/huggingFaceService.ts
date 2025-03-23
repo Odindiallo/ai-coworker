@@ -6,7 +6,8 @@
  */
 
 const HUGGING_FACE_API_URL = 'https://api-inference.huggingface.co/models';
-const HUGGING_FACE_TOKEN = import.meta.env.VITE_HUGGINGFACE_TOKEN;
+// For GitHub Pages deployment, use a placeholder token
+const HUGGING_FACE_TOKEN = 'dummy-token-for-github-pages';
 
 // Define compatible model types for our application
 export enum ModelType {
@@ -168,6 +169,47 @@ export const generateImage = async (
     seed?: number;
   } = {}
 ): Promise<Blob> => {
+  // For GitHub Pages, return a placeholder image instead of making API calls
+  console.log('Using mock implementation for GitHub Pages deployment');
+  console.log('Would have called Hugging Face API with:', {
+    modelId,
+    prompt,
+    negativePrompt,
+    options
+  });
+  
+  // Create a simple canvas with text to return as a mock image
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = options.width || 512;
+  canvas.height = options.height || 512;
+  
+  if (ctx) {
+    // Fill with a gradient
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#f0f0f0');
+    gradient.addColorStop(1, '#d0d0d0');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Add text for the prompt
+    ctx.fillStyle = '#333';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Demo Mode: GitHub Pages', canvas.width / 2, 40);
+    ctx.fillText('Prompt: ' + prompt.substring(0, 30) + (prompt.length > 30 ? '...' : ''), 
+                canvas.width / 2, 80);
+  }
+  
+  // Convert to blob and return
+  return new Promise<Blob>((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob || new Blob());
+    }, 'image/png');
+  });
+  
+  // The original implementation is commented out for reference
+  /*
   // Set default options if not provided
   const defaultOptions = {
     width: 512,
@@ -210,6 +252,7 @@ export const generateImage = async (
     console.error('Error generating image:', error);
     throw error;
   }
+  */
 };
 
 /**
