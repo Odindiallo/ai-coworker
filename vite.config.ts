@@ -15,6 +15,17 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  define: {
+    // Replace sensitive environment variables with empty strings in production
+    'import.meta.env.VITE_HUGGINGFACE_TOKEN': JSON.stringify(''),
+    'import.meta.env.VITE_FIREBASE_API_KEY': JSON.stringify(''),
+    'import.meta.env.VITE_FIREBASE_AUTH_DOMAIN': JSON.stringify(''),
+    'import.meta.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify(''),
+    'import.meta.env.VITE_FIREBASE_STORAGE_BUCKET': JSON.stringify(''),
+    'import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(''),
+    'import.meta.env.VITE_FIREBASE_APP_ID': JSON.stringify(''),
+    'import.meta.env.VITE_FIREBASE_MEASUREMENT_ID': JSON.stringify(''),
+  },
   optimizeDeps: {
     esbuildOptions: {
       // Enable JSX in .js files
